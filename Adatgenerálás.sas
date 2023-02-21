@@ -1,5 +1,6 @@
-/* Adatgeneralas */
-/* Számla generálás */
+/*Data generation*/
+/*Számla generálás*/
+
 data SZAMLA (keep = LEJARAT_DATUM EGYENLEG_OSSZEG DEVIZANEM_KOD TORLESZTESEK_SZAMA TORLESZTES_OSSZEG
                             UGYFEL_KOD TIPUS ALTIPUS SZAMLASZAM THM SZERZODES_OSSZEG INDULAS_DATUM KAMAT
                      index=(SZAMLASZAM));
@@ -10,7 +11,7 @@ format LEJARAT_DATUM INDULAS_DATUM yymmdd10.;
 
 do i=1 to 10000;
 
- INDULAS_DATUM=.; LEJARAT_DATUM=.; EGYENLEG_OSSZEG=.;
+ INDULAS_DATUM=.; LEJARAT_DATUM=.; EGYENLEG_OSSZEG=.; 
  TORLESZTESEK_SZAMA=.; TORLESZTES_OSSZEG=.; THM=.; KAMAT=.; SZERZODES_OSSZEG=.;
 
  SZAMLASZAM = "12345678-12345678-"||substr(trim(left(100000000+i)),2,8);
@@ -77,7 +78,7 @@ do i=1 to 10000;
   TORLESZTESEK_SZAMA=INT((LEJARAT_DATUM-INDULAS_DATUM)/30)+1;
   TORLESZTES_OSSZEG = (szerzodes_osszeg*(1/(1+thm/12)-1))/((1/(1+thm/12))**(torlesztesek_szama)-1);
  end;
- 
+  
  output;
 end;
 
@@ -91,7 +92,7 @@ do i=1 to 100000;
   UGYFEL_KOD = substr(trim(left(100000000+i)),2,8);
   RND=ranuni(1);
   select;
-   when (i=1)        do; UGYFEL_SZEGMENS="A"; end;
+   when (i=1)        do; UGYFEL_SZEGMENS="Á"; end;
    when (i LE 5)     do; UGYFEL_SZEGMENS="B"; end;
    when (RND GT 0.6) do; UGYFEL_SZEGMENS="L"; end;
    when (RND GT 0)   do; UGYFEL_SZEGMENS="V"; end;
@@ -99,23 +100,23 @@ do i=1 to 100000;
   RND=ranuni(1);
   select;
    when (RND GT 0.6) do; UGYFEL_LAKHELY="Budapest"; end;
-   when (RND GT 0.3) do; UGYFEL_LAKHELY="Megyeszekhely"; end;
-   when (RND GT 0.2) do; UGYFEL_LAKHELY="Varos"; end;
-   when (RND GT 0)   do; UGYFEL_LAKHELY="Egyeb"; end;
+   when (RND GT 0.3) do; UGYFEL_LAKHELY="Megyeszékhely"; end;
+   when (RND GT 0.2) do; UGYFEL_LAKHELY="Város"; end;
+   when (RND GT 0)   do; UGYFEL_LAKHELY="Egyéb"; end;
   end;
-  if UGYFEL_SZEGMENS in ("A" "B") then UGYFEL_LAKHELY="Budapest";
+  if UGYFEL_SZEGMENS in ("Á" "B") then UGYFEL_LAKHELY="Budapest";
 
   RND=ranuni(1);
   if UGYFEL_SZEGMENS in ("L" "V") then do;
    select;
-    when (RND GT 0.6) do; UGYFEL_NEV="Kovacs"; if UGYFEL_SZEGMENS="V" then UGYFEL_NEV=trim(left(UGYFEL_NEV))||trim(left(i))||" Kft"; end;
-    when (RND GT 0.3) do; UGYFEL_NEV="Szabo";  if UGYFEL_SZEGMENS="V" then UGYFEL_NEV=trim(left(UGYFEL_NEV))||trim(left(i))||" Kft"; end;
+    when (RND GT 0.6) do; UGYFEL_NEV="Kovács"; if UGYFEL_SZEGMENS="V" then UGYFEL_NEV=trim(left(UGYFEL_NEV))||trim(left(i))||" Kft"; end;
+    when (RND GT 0.3) do; UGYFEL_NEV="Szabó";  if UGYFEL_SZEGMENS="V" then UGYFEL_NEV=trim(left(UGYFEL_NEV))||trim(left(i))||" Kft"; end;
     when (RND GT 0.2) do; UGYFEL_NEV="Kiss";   if UGYFEL_SZEGMENS="V" then UGYFEL_NEV=trim(left(UGYFEL_NEV))||trim(left(i))||" Kft"; end;
     when (RND GT 0)   do; UGYFEL_NEV="Nagy";   if UGYFEL_SZEGMENS="V" then UGYFEL_NEV=trim(left(UGYFEL_NEV))||trim(left(i))||" Kft"; end;
    end;
   end;
   select;
-   when (i=1) do; UGYFEL_NEV="Magyar Allam";   end;
+   when (i=1) do; UGYFEL_NEV="Magyar Állam";   end;
    when (i=2) do; UGYFEL_NEV="OTP";   end;
    when (i=3) do; UGYFEL_NEV="ERSTE"; end;
    when (i=4) do; UGYFEL_NEV="BB";    end;
@@ -147,9 +148,10 @@ run;
 
 data a;
 run;
-/*Fedezet generálás (több ideig fut)*/
+/*Fedezet generálás*/
 data FEDEZET (keep = FEDEZET_KOD UGYLET_SZAMLASZAM FEDEZET_TIPUS FEDEZET_OSSZEG FEDEZET_DEVIZANEM
                              KIBOCSATO_KOD FEDEZET_INDULAS_DATUM FEDEZET_LEJARAT_DATUM);
+set a;
 
 length FEDEZET_KOD $8 UGYLET_SZAMLASZAM $26 FEDEZET_TIPUS $8 FEDEZET_OSSZEG 8 FEDEZET_DEVIZANEM $3 KIBOCSATO_KOD $8
        FEDEZET_INDULAS_DATUM 8 FEDEZET_LEJARAT_DATUM 8;
@@ -178,42 +180,42 @@ do i = 1 to 10000;
    if altipus="LAK" and j LE 2 then do;
     if j=1 then do;
      FEDEZET_TIPUS="INGATLAN";
-     FEDEZET_OSSZEG=SZERZODES_OSSZEG*1.2;
-    end;
-    if j=2 then do;
-     FEDEZET_TIPUS="ALL_GAR";
-     FEDEZET_OSSZEG=SZERZODES_OSSZEG*0.1;
-     KIBOCSATO_KOD="00000001";
-    end;
+	 FEDEZET_OSSZEG=SZERZODES_OSSZEG*1.2;
+	end;
+	if j=2 then do;
+     FEDEZET_TIPUS="ÁLL_GAR";
+	 FEDEZET_OSSZEG=SZERZODES_OSSZEG*0.1;
+	 KIBOCSATO_KOD="00000001";
+	end;
    end;
    else do;
     RND2=ranuni(1);
     RND3=max(int(ranuni(1)*100000-5),0)+6;
-    RND4=max(int(ranuni(1)*5),4)+1;
-    select;
+	RND4=max(int(ranuni(1)*5),4)+1;
+	select;
      when (RND2 GT 0.6) do; FEDEZET_TIPUS="KEZESSEG"; KIBOCSATO_KOD=substr(trim(left(100000000+RND3)),2,8); end;
      when (RND2 GT 0.3) do; FEDEZET_TIPUS="BANK_GAR"; KIBOCSATO_KOD=substr(trim(left(100000000+RND4)),2,8); end;
      when (RND2 GT 0) do;   FEDEZET_TIPUS="LETET"; end;
-    end;
-    RND2=ranuni(1);
-    FEDEZET_OSSZEG=round(SZERZODES_OSSZEG*RND2,10000);
+	end;
+	RND2=ranuni(1);
+	FEDEZET_OSSZEG=round(SZERZODES_OSSZEG*RND2,10000);
    end;
 
    RND2=ranuni(1);
    if RND2 GT 0.20 then do; FEDEZET_DEVIZANEM=DEVIZANEM_KOD; end;
-                   else do;
-                     RND3=ranuni(1);
+                   else do; 
+		 		    RND3=ranuni(1);
                     select;
                      when (RND3 GT 0.4) do; DEVIZANEM_KOD="HUF"; end;
                      when (RND3 GT 0.1) do; DEVIZANEM_KOD="EUR"; end;
                      when (RND3 GT 0)   do; DEVIZANEM_KOD="USD"; end;
                     end;
-                   end;
-                   if FEDEZET_DEVIZANEM="" then FEDEZET_DEVIZANEM="HUF";
+				   end;
+				   if FEDEZET_DEVIZANEM="" then FEDEZET_DEVIZANEM="HUF";
 
    FEDEZET_INDULAS_DATUM=INDULAS_DATUM;
 
-   if FEDEZET_TIPUS = "ALL_GAR" then do; DEVIZANEM_KOD="HUF"; FEDEZET_LEJARAT_DATUM=LEJARAT_DATUM; end;
+   if FEDEZET_TIPUS = "ÁLL_GAR" then do; DEVIZANEM_KOD="HUF"; FEDEZET_LEJARAT_DATUM=LEJARAT_DATUM; end;
    if FEDEZET_TIPUS = "LETET"  then do; RND2=ranuni(1)*1000; FEDEZET_LEJARAT_DATUM = date() + RND2; end;
 
    if FEDEZET_OSSZEG GT 0 then do;
@@ -226,19 +228,19 @@ do i = 1 to 10000;
 end;
 run;
 
-/*Hitel generálás*/
-data HITEL (drop=i havi);
+/*Hitel és árfolyam generálás*/
+data HITEL (drop=i havi); 
 set SZAMLA (where=(tipus="H"));
  hatralevo_torlesztes=INT((LEJARAT_DATUM - Date())/30)+1 ;
  do i = 1 to hatralevo_torlesztes;
- havi = torlesztes_osszeg/((1+THM/12)**((i-1)));
+ havi = torlesztes_osszeg/((1+THM/12)**((i-1))); 
  EGYENLEG_OSSZEG= sum(egyenleg_osszeg,havi);
  end;
  output;
 run;
-/*Árfolyam generálás*/
+
 data ARFOLYAM;
  devizanem_kod = "HUF"; arfolyam = 1; output;
- devizanem_kod = "EUR"; arfolyam = 305; output;
- devizanem_kod = "USD"; arfolyam = 280; output;
+ devizanem_kod = "EUR"; arfolyam = 270; output;
+ devizanem_kod = "USD"; arfolyam = 190; output;
 run;
