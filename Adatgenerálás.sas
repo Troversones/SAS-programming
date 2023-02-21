@@ -244,3 +244,90 @@ data ARFOLYAM;
  devizanem_kod = "EUR"; arfolyam = 270; output;
  devizanem_kod = "USD"; arfolyam = 190; output;
 run;
+/*--------------------------------------------------------------------------------------------------------------------------------------*/
+data ARFOLYAM;
+ devizanem_kod = "HUF"; arfolyam = 1; output;
+ devizanem_kod = "EUR"; arfolyam = 270; output;
+ devizanem_kod = "USD"; arfolyam = 190; output;
+run;
+
+/* 2017.10.05
+   4. gyakorlat - SAS 
+   Adatok generalasa
+   Adatallomanyok parositasa
+   Statisztikai tablak
+*/
+
+/* szamla es ugyfel adatok parositasa
+   az ugyfel_kod kozos kulcs alapjan.
+   Elobb rendezni kell a kulcs alapjan mindket allomanyt: SORT
+*/
+proc sort data=szamla  out=szamlauk;
+ by ugyfel_kod ;
+proc sort data=ugyfel  out=ugyfeluk;
+ by ugyfel_kod ;
+run ;
+data ugyszamla ;
+ merge szamlauk (in=sz)
+       ugyfeluk (in=u);
+ by ugyfel_kod ;
+ if sz and u ;    /* csak a kozos sorok maradnak meg */
+run ;
+
+/* Statisztikai tabla:
+   CLASS: nomenklaturak bevezetese
+   VAR: mutatok bevezetese
+   TABLE: a stat. tabla osszeallitasa
+   Diminziok: ","-vel elvalasztva (most 3 dimenzio,
+   vagyis devizanemenkent kulon tablak, melyekben
+   a sorban az ugyfel lakhelye, az oszlopban a tipus szerepel.
+   az oszlopban meg az ugyfel jovedelmek atlagai is lathatok
+   ALL opcioval osszesen szamitas
+   *-gal statisztika beagyazasa
+   "" jelek kozott cimkek
+ */
+proc tabulate data=ugyszamla ;
+ title "Ügyfelek adatai devizanemek és lakóhely szerint" ;
+ class tipus devizanem_kod ugyfel_minosites
+        ugyfel_lakhely ugyfel_default ;
+ var ugyfel_jovedelem ;
+ table devizanem_kod="Árfolyam" all="Összesen",
+        ugyfel_lakhely="lakóhely" all="Összesen",
+        tipus all="Összesen" ugyfel_jovedelem*mean="Átlag jövedelem";
+run ;
+
+/* Az elozo tabla, csak 2 dimenziosban:
+   Az elso ket dimenzio osszevonva, vagyis
+   a sorokban ket diszkret valtozo (devizanem, majd lakhely) szerint
+   szerepelnek a kert adatok.
+   Zarojelezessel, beagyazassal (*)
+*/
+proc tabulate data=ugyszamla ;
+ title "Ügyfelek minősítése" ;
+ class tipus devizanem_kod ugyfel_minosites
+        ugyfel_lakhely ugyfel_default ;
+ var ugyfel_jovedelem ;
+ table (devizanem_kod="Áfolyam" all="Összesen")*
+        (ugyfel_lakhely="lakóhely" all="Összesen"),
+       tipus all="Összesen" ugyfel_jovedelem*mean="Álag jövedelem";
+run ;
+
+/* Ha a MEANS-ben nem adunk meg valtozot, 
+   minden numerikus valtozora lefuttatja a leiro statisztikakat 
+   Igy a datumokra is, melyeket egesz szamkent jelenit meg...
+*/
+proc means data= szamla ;
+run ;
+
+/* Bovebb leiro statisztikak es
+   az ugyfel jovedelmenek eloszlasa */
+proc univariate data=ugyszamla ;
+ histogram ugyfel_jovedelem ;
+run ;
+
+/* A parositott adatallomanyban
+   a devizankenti gyakorisagok
+*/
+proc freq data=ugyszamla ;
+ tables devizanem_kod ;
+run ;
