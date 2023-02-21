@@ -1,5 +1,5 @@
 /* Adatgeneralas */
-
+/* Számla generálás */
 data SZAMLA (keep = LEJARAT_DATUM EGYENLEG_OSSZEG DEVIZANEM_KOD TORLESZTESEK_SZAMA TORLESZTES_OSSZEG
                             UGYFEL_KOD TIPUS ALTIPUS SZAMLASZAM THM SZERZODES_OSSZEG INDULAS_DATUM KAMAT
                      index=(SZAMLASZAM));
@@ -82,7 +82,7 @@ do i=1 to 10000;
 end;
 
 run;
-
+/*Ügyfél generálás*/
 data UGYFEL (keep= UGYFEL_KOD UGYFEL_SZEGMENS UGYFEL_NEV UGYFEL_LAKHELY UGYFEL_DEFAULT UGYFEL_JOVEDELEM NETTO_ARBEVETEL UGYFEL_MINOSITES);
 length UGYFEL_KOD $12 UGYFEL_SZEGMENS $1 UGYFEL_NEV $50 UGYFEL_LAKHELY $15 UGYFEL_DEFAULT $1 UGYFEL_JOVEDELEM 8 NETTO_ARBEVETEL 8 UGYFEL_MINOSITES $1;
 do i=1 to 100000;
@@ -147,7 +147,7 @@ run;
 
 data a;
 run;
-
+/*Fedezet generálás (több ideig fut)*/
 data FEDEZET (keep = FEDEZET_KOD UGYLET_SZAMLASZAM FEDEZET_TIPUS FEDEZET_OSSZEG FEDEZET_DEVIZANEM
                              KIBOCSATO_KOD FEDEZET_INDULAS_DATUM FEDEZET_LEJARAT_DATUM);
 
@@ -226,7 +226,7 @@ do i = 1 to 10000;
 end;
 run;
 
-
+/*Hitel generálás*/
 data HITEL (drop=i havi);
 set SZAMLA (where=(tipus="H"));
  hatralevo_torlesztes=INT((LEJARAT_DATUM - Date())/30)+1 ;
@@ -236,7 +236,7 @@ set SZAMLA (where=(tipus="H"));
  end;
  output;
 run;
-
+/*Árfolyam generálás*/
 data ARFOLYAM;
  devizanem_kod = "HUF"; arfolyam = 1; output;
  devizanem_kod = "EUR"; arfolyam = 305; output;
