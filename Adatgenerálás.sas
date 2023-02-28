@@ -322,7 +322,7 @@ run ;
 /* Bovebb leiro statisztikak es
    az ugyfel jovedelmenek eloszlasa */
 proc univariate data=ugyszamla ;
- histogram ugyfel_jovedelem ;
+ histogram /* ugyfel_jovedelem */;
 run ;
 
 /* A parositott adatallomanyban
